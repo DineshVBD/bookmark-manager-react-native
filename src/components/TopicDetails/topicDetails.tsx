@@ -1,14 +1,10 @@
 import type {NativeStackScreenProps} from '@react-navigation/native-stack';
-import LottieView from 'lottie-react-native';
 import React, {FunctionComponent, useEffect, useState} from 'react';
-import {
-  Dimensions,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import {Dimensions, SafeAreaView, ScrollView, StyleSheet} from 'react-native';
 import WebView from 'react-native-webview';
+import RootStackParamList from '../../types/rootStack';
+import Loader from '../Loader/loader';
+import {TopicDetailsConstants} from './constants';
 
 type TopicListProps = NativeStackScreenProps<
   RootStackParamList,
@@ -17,19 +13,7 @@ type TopicListProps = NativeStackScreenProps<
 
 const {width: DEVICE_WIDTH, height: DEVICE_HEIGHT} = Dimensions.get('window');
 
-const Loader = () => {
-  return (
-    <View style={[styles.loadingContainer, styles.horizontal]}>
-      <LottieView
-        source={require('../../../assets/animations/Animation - 1711886303664.json')}
-        autoPlay
-        loop
-        style={styles.animation}
-      />
-    </View>
-  );
-};
-
+// Component that shows all the posts related to a topic.
 const TopicDetails: FunctionComponent<TopicListProps> = ({
   route,
 }: TopicListProps) => {
@@ -39,13 +23,21 @@ const TopicDetails: FunctionComponent<TopicListProps> = ({
 
   const [html, setHtml] = useState<string>('');
 
+  const {
+    NO_TWEET_HTML,
+    TWITTER_EMBED_URL,
+    TWITTER_HTML_PREFIX,
+    TWITTER_HTML_SUFFIX,
+  } = TopicDetailsConstants;
+
   let allTweetsHtml = '';
 
-  const fetchTweet = async () => {
-    const response = await fetch(
-      'https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/463440424141459456&theme=dark',
-      {method: 'GET', headers: {Accepts: 'application/json'}},
-    );
+  // Fetches tweet from the Twitter Embed API.
+  const fetchTweet = async (url: string) => {
+    const response = await fetch(TWITTER_EMBED_URL + url, {
+      method: 'GET',
+      headers: {Accepts: 'application/json'},
+    });
 
     if (response.ok) {
       await response.json().then(json => {
@@ -54,90 +46,61 @@ const TopicDetails: FunctionComponent<TopicListProps> = ({
     }
   };
 
+  // Function that fetches all the tweets
   const fetchTweets = async () => {
-    await fetchTweet();
-    await fetchTweet();
-    await fetchTweet();
+    await fetchTweet(
+      'https://twitter.com/Interior/status/463440424141459456&theme=dark',
+    );
+    await fetchTweet(
+      'https://twitter.com/Interior/status/463440424141459456&theme=dark',
+    );
+    await fetchTweet(
+      'https://twitter.com/Interior/status/463440424141459456&theme=dark',
+    );
+
     let embedHtml = '';
     if (allTweetsHtml.length == 0) {
-      embedHtml = '<p>No tweets to show</p>';
+      embedHtml = NO_TWEET_HTML;
     } else {
-      embedHtml = `<!DOCTYPE html>\
-      <html>\
-        <head>\
-          <meta charset="utf-8">\
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">\
-          </head>\
-          <body>\
-            ${allTweetsHtml}\
-            <script>
-             window.onload =
-             function fn1(){
-              setTimeout(() => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({ loaded: true }));
-              },2000);
-       
-           }
-          </script>
-         
-          </body>\
-      </html>`;
+      embedHtml = `${TWITTER_HTML_PREFIX}${allTweetsHtml}${TWITTER_HTML_SUFFIX}`;
     }
     setHtml(embedHtml);
-    // setLoading(false);
   };
 
+  // Fetches tweets for the corresponding topic.
   useEffect(() => {
     fetchTweets();
   }, []);
 
   return (
-    <>
-      <SafeAreaView style={{flex: 1}}>
-        {loading && <Loader />}
-        <ScrollView style={{display: loading ? 'none' : 'flex'}}>
-          <WebView
-            onMessage={event => {
-              setLoading(false);
-            }}
-            startInLoadingState={true}
-            nestedScrollEnabled
-            source={{html: html}}
-            style={styles.webview}
-          />
-        </ScrollView>
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={styles.container}>
+      {loading && <Loader />}
+      <ScrollView style={{display: loading ? 'none' : 'flex'}}>
+        <WebView
+          onMessage={() => {
+            setLoading(false);
+          }}
+          startInLoadingState={true}
+          nestedScrollEnabled
+          source={{html: html}}
+          style={styles.webview}
+        />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-// define your styles
+// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingContainer: {
-    flex: 1,
-    height: 1000,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  horizontal: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 10,
-  },
-  animation: {
-    width: 200,
-    height: 200,
-  },
   webview: {
-    flex: 1,
-    width: DEVICE_WIDTH,
-    height: DEVICE_HEIGHT,
     backgroundColor: 'grey',
+    flex: 1,
+    height: DEVICE_HEIGHT,
+    width: DEVICE_WIDTH,
   },
 });
 
-//make this component available to the app
 export default TopicDetails;

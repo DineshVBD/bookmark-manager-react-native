@@ -1,15 +1,17 @@
-import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import {useEffect, useState} from 'react';
+import ReceiveSharingIntent from 'react-native-receive-sharing-intent';
 import ShareFile from '../types/shareFile';
 
 /**
  * Core Logic of the Application where files are received when shared by any
  * application on Android device.
- * 
+ *
  * @returns {sharedFiles}
  */
 const useGetShare = () => {
-  const [sharedFiles, setSharedFiles] = useState<ShareFile[] | undefined>(undefined);
+  const [sharedFiles, setSharedFiles] = useState<ShareFile[] | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     // To get All Recived Urls

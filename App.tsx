@@ -4,7 +4,9 @@ import React from 'react';
 import HomePage from './src/components/Homepage/homepage';
 import TopicDetails from './src/components/TopicDetails/topicDetails';
 import TopicList from './src/components/TopicList/topicList';
+import RootStackParamList from './src/types/rootStack';
 
+// Navigation Stack context.
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {

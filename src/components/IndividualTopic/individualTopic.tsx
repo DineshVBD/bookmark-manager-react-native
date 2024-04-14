@@ -1,11 +1,13 @@
-//import libaries
 import React, {FunctionComponent} from 'react';
 import {Dimensions, StyleSheet, TouchableHighlight} from 'react-native';
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
+  GestureUpdateEvent,
+  PanGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
+import {PanGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/panGesture';
 import Animated, {
   SharedValue,
   runOnJS,
@@ -20,14 +22,15 @@ import GlobalText from '../../utils/globalText';
 type IndividualTopicProps = {
   topic: string;
   removeTopic: (removedTopic: string) => void;
-  nextscreen: (item: any) => void;
+  individualTopicScreenNavigator: (item: string) => void;
 };
 
+// Screen width calculation.
 const {width: SCREEN_WIDTH} = Dimensions.get('window');
 
 const deviceWidth = SCREEN_WIDTH - 40;
 
-// Negative value
+// Negative value since we move from R to L.
 const TRANSLATE_X_THRESHOLD = -SCREEN_WIDTH * 0.3;
 
 const TOPIC_HEIGHT = 50;
@@ -38,8 +41,9 @@ const TOPIC_MARGIN = 10;
 const IndividualTopic: FunctionComponent<IndividualTopicProps> = ({
   topic,
   removeTopic,
-  nextscreen,
+  individualTopicScreenNavigator,
 }): React.JSX.Element => {
+  // List of shared values(to identify the gestures made on the mobile app)
   const swipeLeftValue: SharedValue<number> = useSharedValue(0);
 
   const topicHeight: SharedValue<number> = useSharedValue(TOPIC_HEIGHT);
@@ -49,12 +53,14 @@ const IndividualTopic: FunctionComponent<IndividualTopicProps> = ({
   const AnimatedTouchable =
     Animated.createAnimatedComponent(TouchableHighlight);
 
-  const swipeGestureHandler = Gesture.Pan()
-    .onUpdate(event => {
+  // Handles the swipe to delete functionality.
+  const swipeGestureHandler: PanGesture = Gesture.Pan()
+    .onUpdate((event: GestureUpdateEvent<PanGestureHandlerEventPayload>) => {
       swipeLeftValue.value = event.translationX;
     })
     .onEnd(() => {
-      const shouldBeDismissed = swipeLeftValue.value < TRANSLATE_X_THRESHOLD;
+      const shouldBeDismissed: boolean =
+        swipeLeftValue.value < TRANSLATE_X_THRESHOLD;
       if (shouldBeDismissed) {
         swipeLeftValue.value = withTiming(-SCREEN_WIDTH);
         topicHeight.value = withTiming(0);
@@ -93,13 +99,13 @@ const IndividualTopic: FunctionComponent<IndividualTopicProps> = ({
           iconOpacityStyle,
           topicHeightAndMarginStyle,
         ]}>
-        <Icon name="trash-alt" size={25} color="#900" />
+        <Icon name="trash-alt" size={25} color={colors.ERROR} />
       </Animated.View>
       <GestureHandlerRootView style={{flex: 1}}>
         <AnimatedTouchable
-          underlayColor={'white'}
+          underlayColor={colors.LIGHT}
           onPress={() => {
-            nextscreen(topic);
+            individualTopicScreenNavigator(topic);
           }}>
           <GestureDetector gesture={swipeGestureHandler}>
             <Animated.View
@@ -119,7 +125,7 @@ const IndividualTopic: FunctionComponent<IndividualTopicProps> = ({
   );
 };
 
-// define your styles
+// Styles
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.LIGHT,
@@ -134,13 +140,12 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   iconContainer: {
-    width: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
     position: 'absolute',
     right: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 50,
   },
 });
 
-//make this component available to the app
 export default IndividualTopic;

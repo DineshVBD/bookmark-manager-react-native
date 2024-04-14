@@ -2,6 +2,7 @@ import type {NativeStackScreenProps} from '@react-navigation/native-stack';
 import React, {FunctionComponent} from 'react';
 import {StatusBar, StyleSheet, View} from 'react-native';
 import useGetShare from '../../hooks/useGetShare';
+import RootStackParamList from '../../types/rootStack';
 import ShareFile from '../../types/shareFile';
 import Button from '../../utils/button';
 import colors from '../../utils/colors';
@@ -17,7 +18,8 @@ const HomePage: FunctionComponent<HomePageProps> = ({
   // Receive shared files using the hook.
   const files: ShareFile[] | undefined = useGetShare();
 
-  const {ONE_FILE_ALLOWED, ONLY_TWITTER_LINKS, NO_FILES_FOUND} =
+  // Imported Constants.
+  const {ONE_FILE_ALLOWED, ONLY_TWITTER_LINKS, NO_FILES_FOUND, TWITTER_PREFIX} =
     HomePageConstants;
 
   return (
@@ -34,7 +36,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({
           ) : files?.length == 1 ? (
             <>
               {files?.map((file: ShareFile, index: number) =>
-                file?.weblink?.startsWith('https://x.com') ? (
+                file?.weblink?.startsWith(TWITTER_PREFIX) ? (
                   <GlobalText>{file.weblink}</GlobalText>
                 ) : (
                   <GlobalText>{ONLY_TWITTER_LINKS}</GlobalText>
@@ -50,6 +52,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
