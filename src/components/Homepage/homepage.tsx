@@ -8,11 +8,6 @@ import colors from '../../utils/colors';
 import GlobalText from '../../utils/globalText';
 import {HomePageConstants} from './constants';
 
-type RootStackParamList = {
-  'Mark it!': undefined;
-  'My Topics': undefined;
-};
-
 type HomePageProps = NativeStackScreenProps<RootStackParamList, 'Mark it!'>;
 
 // Homepage component
@@ -35,7 +30,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({
         />
         <View style={[StyleSheet.absoluteFillObject, styles.container]}>
           {files?.length && files?.length > 1 ? (
-            <GlobalText>{ONE_FILE_ALLOWED}</GlobalText>
+            <GlobalText style={styles.lightText}>{ONE_FILE_ALLOWED}</GlobalText>
           ) : files?.length == 1 ? (
             <>
               {files?.map((file: ShareFile, index: number) =>
@@ -47,9 +42,7 @@ const HomePage: FunctionComponent<HomePageProps> = ({
               )}
             </>
           ) : (
-            <GlobalText style={{fontSize: 20, fontWeight: '500'}}>
-              {NO_FILES_FOUND}
-            </GlobalText>
+            <GlobalText style={styles.lightText}>{NO_FILES_FOUND}</GlobalText>
           )}
         </View>
       </View>
@@ -64,6 +57,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     zIndex: -1,
+  },
+  lightText: {
+    color: colors.GREY,
+    fontSize: 16,
   },
   topicButton: {
     flex: 1,

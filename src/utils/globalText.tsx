@@ -13,7 +13,7 @@ const GlobalText: FunctionComponent<GlobalTextProps | TextProps> = ({
   ...props
 }): React.JSX.Element => {
   return (
-    <Text style={[styles.text, style && style]} {...props}>
+    <Text style={[styles.text, style ?? style]} {...props}>
       {children}
     </Text>
   );
@@ -22,6 +22,7 @@ const GlobalText: FunctionComponent<GlobalTextProps | TextProps> = ({
 const styles = StyleSheet.create({
   text: {
     fontFamily: 'NunitoSans_10pt-Regular',
+    color: 'black',
   },
 });
 
